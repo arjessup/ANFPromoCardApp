@@ -9,6 +9,15 @@
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
     tools:showIn="@layout/activity_main" tools:context=".MainActivity">
 
-    <TextView android:text="Hello World!" android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
+
+    <TableLayout
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent">
+        <TableRow>
+            <TextView android:text="one"/>
+        </TableRow>
+        <TableRow>
+            <TextView android:text="two"/>
+        </TableRow>
+    </TableLayout>
 </RelativeLayout>
