@@ -10,6 +10,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TableLayout;
 import android.widget.TableRow;
@@ -115,7 +116,10 @@ public class MainActivity extends AppCompatActivity {
             TableLayout tableLayout = (TableLayout)findViewById(R.id.promotiontable);
             for (final Promotion promotion: promotions) {
                 TableRow tableRow = new TableRow(this);
-                tableRow.setLayoutParams(new TableRow.LayoutParams(1000, 200));
+                TableRow.LayoutParams tableRowLayoutParams = new TableRow.LayoutParams();
+                tableRowLayoutParams.width = TableRow.LayoutParams.MATCH_PARENT;
+                tableRowLayoutParams.height = TableRow.LayoutParams.WRAP_CONTENT;
+                tableRow.setLayoutParams(tableRowLayoutParams);
                 tableRow.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
@@ -127,8 +131,8 @@ public class MainActivity extends AppCompatActivity {
                     }
                 });
 
-                setupImageView(promotion, tableRow);
                 setupTextView(promotion, tableRow);
+                setupImageView(promotion, tableRow);
                 tableLayout.addView(tableRow);
             }
         } catch (JSONException je) {
@@ -139,9 +143,10 @@ public class MainActivity extends AppCompatActivity {
     private void setupImageView(Promotion promotion, TableRow tableRow) {
         ImageView imageView = new ImageView(this);
         Glide.with(this).load(promotion.getImage()).into(imageView);
-        TableRow.LayoutParams imageViewParams = new TableRow.LayoutParams(200, 200);
-        imageViewParams.gravity = Gravity.LEFT;
-        imageViewParams.bottomMargin = 4;
+        TableRow.LayoutParams imageViewParams = new TableRow.LayoutParams(400, 200);
+        imageViewParams.gravity = Gravity.RIGHT;
+        imageViewParams.column = 0;
+        imageViewParams.bottomMargin = 50;
         imageView.setLayoutParams(imageViewParams);
         tableRow.addView(imageView);
     }
@@ -152,7 +157,8 @@ public class MainActivity extends AppCompatActivity {
         TableRow.LayoutParams textViewParams = new TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT, TableRow.LayoutParams.MATCH_PARENT);
         textViewParams.gravity = Gravity.LEFT;
         textViewParams.bottomMargin = 4;
-        textView.setLayoutParams(textViewParams);
+        textViewParams.column = 1;
+//        textView.setLayoutParams(textViewParams);
         tableRow.addView(textView);
 
     }
