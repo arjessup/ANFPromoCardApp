@@ -1,6 +1,5 @@
 package com.sogeti.andreajessup.anfpromocards;
 
-import android.app.ActionBar;
 import android.content.Context;
 import android.content.Intent;
 import android.net.ConnectivityManager;
@@ -11,9 +10,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
-import android.view.Menu;
-import android.view.MenuItem;
-import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TableLayout;
 import android.widget.TableRow;
@@ -46,39 +42,72 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        accessData();
 
-        ConnectivityManager connectivityManager = (ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
-        if (networkInfo != null && networkInfo.isConnected()) {
-            new DownloadJsonDataTask().execute(getResources().getString(R.string.data_url));
-        }
-
-        FileInputStream fileInputStream = null;
         if (fileExists(FILE_NAME)) {
-            setContentView(R.layout.activity_main);
-            try {
-                fileInputStream = openFileInput(FILE_NAME);
-                populateTableView(convertStreamToString(fileInputStream));
-            } catch (FileNotFoundException fnfe) {
-                Log.e("ERROR", "Threw FileNotFoundException", fnfe);
-            } catch (Exception e) {
-                Log.e("ERROR", "Threw Exception", e);
-            } finally {
-                try {
-                    if (fileInputStream != null) {
-                        fileInputStream.close();
-                    }
-                }catch (IOException ioe) {
-                    Log.e("ERROR", "Threw IOException", ioe);
-                }
-            }
+            readDataFromFile();
         } else {
             setContentView(R.layout.activity_nodata);
         }
     }
 
+//    @Override
+//    public boolean onCreateOptionsMenu(Menu menu) {
+//        // Inflate the menu; this adds items to the action bar if it is present.
+//        getMenuInflater().inflate(R.menu.menu_main, menu);
+//        return true;
+//    }
+
+//    @Override
+//    public boolean onOptionsItemSelected(MenuItem item) {
+//        // Handle action bar item clicks here. The action bar will
+//        // automatically handle clicks on the Home/Up button, so long
+//        // as you specify a parent activity in AndroidManifest.xml.
+//        int id = item.getItemId();
+//
+//        //noinspection SimplifiableIfStatement
+//        if (id == R.id.action_settings) {
+//            return true;
+//        }
+//
+//        return super.onOptionsItemSelected(item);
+//    }
+
+    private void accessData() {
+        ConnectivityManager connectivityManager = (ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
+        if (networkInfo != null && networkInfo.isConnected()) {
+            new DownloadJsonDataTask().execute(getResources().getString(R.string.data_url));
+        }
+    }
+
+    private boolean fileExists(String fileName){
+        File file = getBaseContext().getFileStreamPath(fileName);
+        return file.exists();
+    }
+
+    private void readDataFromFile() {
+        FileInputStream fileInputStream = null;
+        setContentView(R.layout.activity_main);
+        try {
+            fileInputStream = openFileInput(FILE_NAME);
+            populateTableView(convertStreamToString(fileInputStream));
+        } catch (FileNotFoundException fnfe) {
+            Log.e("ERROR", "Threw FileNotFoundException", fnfe);
+        } catch (Exception e) {
+            Log.e("ERROR", "Threw Exception", e);
+        } finally {
+            try {
+                if (fileInputStream != null) {
+                    fileInputStream.close();
+                }
+            }catch (IOException ioe) {
+                Log.e("ERROR", "Threw IOException", ioe);
+            }
+        }
+    }
+
     private void populateTableView(String jsonData) {
-        Log.d("DEBUG", "This is the json data: " + jsonData);
         try {
             JSONObject jsonObject = new JSONObject(jsonData);
             JSONArray jsonArray = jsonObject.getJSONArray("promotions");
@@ -98,27 +127,34 @@ public class MainActivity extends AppCompatActivity {
                     }
                 });
 
-                ImageView imageView = new ImageView(this);
-                Glide.with(this).load(promotion.getImage()).into(imageView);
-                TableRow.LayoutParams imageViewParams = new TableRow.LayoutParams(200, 200);
-                imageViewParams.gravity = Gravity.LEFT;
-                imageViewParams.bottomMargin = 4;
-                imageView.setLayoutParams(imageViewParams);
-                tableRow.addView(imageView);
-
-                TextView textView = new TextView(this);
-                textView.setText(promotion.getTitle());
-                TableRow.LayoutParams textViewParams = new TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT, TableRow.LayoutParams.MATCH_PARENT);
-                textViewParams.gravity = Gravity.LEFT;
-                textViewParams.bottomMargin = 4;
-                textView.setLayoutParams(textViewParams);
-                tableRow.addView(textView);
-
+                setupImageView(promotion, tableRow);
+                setupTextView(promotion, tableRow);
                 tableLayout.addView(tableRow);
             }
         } catch (JSONException je) {
             Log.e("ERROR", "Threw a JSONException", je);
         }
+    }
+
+    private void setupImageView(Promotion promotion, TableRow tableRow) {
+        ImageView imageView = new ImageView(this);
+        Glide.with(this).load(promotion.getImage()).into(imageView);
+        TableRow.LayoutParams imageViewParams = new TableRow.LayoutParams(200, 200);
+        imageViewParams.gravity = Gravity.LEFT;
+        imageViewParams.bottomMargin = 4;
+        imageView.setLayoutParams(imageViewParams);
+        tableRow.addView(imageView);
+    }
+
+    private void setupTextView(Promotion promotion, TableRow tableRow) {
+        TextView textView = new TextView(this);
+        textView.setText(promotion.getTitle());
+        TableRow.LayoutParams textViewParams = new TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT, TableRow.LayoutParams.MATCH_PARENT);
+        textViewParams.gravity = Gravity.LEFT;
+        textViewParams.bottomMargin = 4;
+        textView.setLayoutParams(textViewParams);
+        tableRow.addView(textView);
+
     }
 
     private static String convertStreamToString(InputStream is) throws Exception {
@@ -129,34 +165,7 @@ public class MainActivity extends AppCompatActivity {
             sb.append(line).append("\n");
         }
         reader.close();
-        Log.d("DEBUG", "This is the line reader: " + sb.toString());
         return sb.toString();
-    }
-
-    private boolean fileExists(String fileName){
-        File file = getBaseContext().getFileStreamPath(fileName);
-        return file.exists();
-    }
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_main, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
-        }
-
-        return super.onOptionsItemSelected(item);
     }
 
     private class DownloadJsonDataTask extends AsyncTask<String, Void, String> {
@@ -165,16 +174,13 @@ public class MainActivity extends AppCompatActivity {
             try {
                 return downloadURL(urls[0]);
             } catch (IOException ioe) {
-                Log.e("ERROR", "Threw IOException", ioe);
                 return "Unable to retrieve JSON data";
             }
         }
 
         @Override
         protected void onPostExecute(String result) {
-            //result is the JSON as string
             FileOutputStream fileOutputStream = null;
-            Log.d("DEBUG", "THis is the result that is stored on file: " + result);
             try {
                 fileOutputStream = openFileOutput(FILE_NAME, Context.MODE_PRIVATE);
                 fileOutputStream.write(result.getBytes());
@@ -200,7 +206,6 @@ public class MainActivity extends AppCompatActivity {
                 connection.setRequestMethod("GET");
                 connection.setDoInput(true);
                 connection.connect();
-                int connectionResponse = connection.getResponseCode();
                 inputStream = connection.getInputStream();
                 String jsonAsString = readInputStream(inputStream);
                 return jsonAsString;
@@ -212,11 +217,13 @@ public class MainActivity extends AppCompatActivity {
         }
 
         private String readInputStream(InputStream inputStream) throws IOException, UnsupportedEncodingException {
-            Reader reader = null;
-            reader = new InputStreamReader(inputStream, "UTF-8");
-            char[] buffer = new char[826];
-            reader.read(buffer);
-            return new String(buffer);
+            BufferedReader r = new BufferedReader(new InputStreamReader(inputStream));
+            StringBuilder total = new StringBuilder();
+            String line;
+            while ((line = r.readLine()) != null) {
+                total.append(line);
+            }
+            return total.toString();
         }
     }
 }
