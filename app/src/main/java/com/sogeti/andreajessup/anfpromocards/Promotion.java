@@ -27,13 +27,6 @@ public class Promotion  implements Serializable {
 
     public Promotion() {}
 
-    public String toString() {
-        if (footer == "" || footer == null) {
-            footer = "";
-        }
-        return "****PROMOTION:****\nBUtton: " + button.toString() + " \nDescription: " + description + " \nFooter: " + footer + " \nImage: " + image + " \nTitle: " + title;
-    }
-
     public static Promotion promotionFromJson(JSONObject jsonObject) {
         Promotion promotion = new Promotion();
         try {

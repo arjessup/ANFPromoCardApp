@@ -27,27 +27,53 @@ public class PromoCardActivity extends AppCompatActivity {
     }
 
     private void populateCard() {
-        // TableLayout tableLayout = (TableLayout)findViewById(R.id.promotiontable);
-        ImageView imageView = (ImageView)findViewById(R.id.promo_image);
-        TextView titleTextView = (TextView)findViewById(R.id.promo_title);
-        TextView descriptionTextView = (TextView)findViewById(R.id.promo_description);
-        TextView footerTextView = (TextView)findViewById(R.id.promo_footer);
-        Button button = (Button)findViewById(R.id.promo_button);
+        setupImageView();
+        setupTitleTextView();
+        setupDescriptionTextView();
+        setupFooterTextView();
+        setupButton();
+    }
 
-        Glide.with(this).load(promotion.getImage()).into(imageView);
-        titleTextView.setText(promotion.getTitle());
-        descriptionTextView.setText(promotion.getDescription());
-        if (promotion.getFooter() != null && promotion.getFooter().length() > 0) {
+    private void setupImageView() {
+        if (promotion.getImage() != null) {
+            ImageView imageView = (ImageView) findViewById(R.id.promo_image);
+            Glide.with(this).load(promotion.getImage()).into(imageView);
+        }
+    }
+
+    private void setupTitleTextView() {
+        if (promotion.getTitle() != null) {
+            TextView titleTextView = (TextView) findViewById(R.id.promo_title);
+            titleTextView.setText(promotion.getTitle());
+        }
+    }
+
+    private void setupDescriptionTextView() {
+        if (promotion.getDescription() != null) {
+            TextView descriptionTextView = (TextView) findViewById(R.id.promo_description);
+            descriptionTextView.setText(promotion.getDescription());
+        }
+    }
+
+    private void setupFooterTextView() {
+        if (promotion.getFooter() != null) {
+            TextView footerTextView = (TextView)findViewById(R.id.promo_footer);
             footerTextView.setText(Html.fromHtml(promotion.getFooter()));
         }
-        button.setText(promotion.getButton().getTitle());
-        button.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(getApplicationContext(), WebviewActivity.class);
-                intent.putExtra("url", promotion.getButton().getTarget());
-                startActivity(intent);
-            }
-        });
+    }
+
+    private void setupButton() {
+        if (promotion.getButton() != null) {
+            Button button = (Button) findViewById(R.id.promo_button);
+            button.setText(promotion.getButton().getTitle());
+            button.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Intent intent = new Intent(getApplicationContext(), WebviewActivity.class);
+                    intent.putExtra("url", promotion.getButton().getTarget());
+                    startActivity(intent);
+                }
+            });
+        }
     }
 }
